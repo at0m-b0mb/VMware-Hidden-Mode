@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 #  VMware Guest Artifact Cleaner — Apple Silicon / ARM Edition
 #  Run INSIDE Windows 11 ARM VM as Administrator.
 #  Compatible with Windows PowerShell 5.1 and PowerShell 7+.
@@ -44,7 +44,7 @@ if (Test-Path $sysInfoPath) {
         $val = $p.$field
         if ($val -imatch $vmPattern) {
             Set-ItemProperty $sysInfoPath $field $dellIdentity[$field] -Force
-            Write-Ok "$field: '$val'  ->  '$($dellIdentity[$field])'"
+            Write-Ok "${field}: '$val'  ->  '$($dellIdentity[$field])'"
         } elseif ($val) { Write-Skip "$field already clean: '$val'" }
     }
 }
@@ -290,7 +290,7 @@ if (Test-Path $sysInfo) {
         $val = $p.$field
         if ($val -imatch $vmPattern) {
             Set-ItemProperty $sysInfo $field $replacements[$field] -Force
-            Write-Ok "SystemInfo.$field: '$val'  ->  '$($replacements[$field])'"
+            Write-Ok "SystemInfo.${field}: '$val'  ->  '$($replacements[$field])'"
         }
     }
 }
