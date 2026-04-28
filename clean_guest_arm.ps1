@@ -55,9 +55,17 @@ if (Test-Path $hwDesc) {
         Set-ItemProperty $hwDesc "SystemBiosVersion" "Dell Inc. 1.12.0, 09/15/2023" -Force
         Write-Ok "Patched HARDWARE SystemBiosVersion"
     }
-    if ($p.SystemBiosDate -and ($p.SystemBiosDate -lt "01/01/2020")) {
+    # Parse SystemBiosDate as a real date (MM/dd/yyyy) rather than relying on
+    # broken lexicographic string compare.
+    $biosDate = $null
+    if ($p.SystemBiosDate) {
+        [DateTime]::TryParseExact($p.SystemBiosDate, "MM/dd/yyyy",
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [System.Globalization.DateTimeStyles]::None, [ref]$biosDate) | Out-Null
+    }
+    if ($biosDate -and $biosDate -lt [DateTime]"2020-01-01") {
         Set-ItemProperty $hwDesc "SystemBiosDate" "09/15/2023" -Force
-        Write-Ok "Patched HARDWARE SystemBiosDate"
+        Write-Ok "Patched HARDWARE SystemBiosDate (was: $($p.SystemBiosDate))"
     }
     if ($p.VideoBiosVersion -imatch "Apple|VMWARE|VIRTUAL|BOCHS|QEMU|SEABIOS") {
         Set-ItemProperty $hwDesc "VideoBiosVersion" "Version 3.0 Rev. A" -Force
@@ -70,16 +78,9 @@ if (Test-Path $hwDesc) {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  EMBEDDED FALLBACK — condensed sections
-#  Covers: registry, services, processes, binaries, drivers, DLLs, PCI devices,
-#  disk strings, NICs, GPU, audio, sysinfo, programs, prefetch, scheduled tasks,
-#  event logs, firewall rules, WMI verification, network, computer name,
-#  username, RAM/CPU, disk size, uptime, timezone, user artifacts, startup items.
-#
-#  Missing vs. standalone clean_guest_arm.ps1: DEVICEMAP\Scsi (9), ACPI keys
-#  (15), environment variables (21), screen resolution (26), volume serial (29),
-#  named pipes (32), anti-analysis tools (33), browser stubs (35), mouse jitter
-#  (37).  Copy clean_guest_arm.ps1 next to this script to get all 38 sections.
+#  Sections 1 – 37 below mirror clean_guest.ps1 (x86 edition) so this script
+#  is at full parity.  Section 0 (Apple SMBIOS) and Section 38 (ARM64 arch
+#  fingerprint note) are the only ARM-specific additions.
 # ─────────────────────────────────────────────────────────────────────────────
 Write-Step "Registry — removing VMware keys"
 $regKeys = @(
@@ -229,6 +230,18 @@ foreach ($bus in @("HKLM:\SYSTEM\CurrentControlSet\Enum\SCSI","HKLM:\SYSTEM\Curr
     }
 }
 
+Write-Step "DEVICEMAP\Scsi — patching Identifier field"
+$deviceMap = "HKLM:\HARDWARE\DEVICEMAP\Scsi"
+if (Test-Path $deviceMap) {
+    Get-ChildItem $deviceMap -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+        $p = Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue
+        if ($p.Identifier -imatch "VMWARE|VMware") {
+            Set-ItemProperty $_.PSPath "Identifier" "WDC WD10EZEX-08WN4A0     " -Force
+            Write-Ok "DEVICEMAP Scsi Identifier patched: '$($p.Identifier)'"
+        }
+    }
+}
+
 Write-Step "NIC class registry — patching DriverDesc"
 $nicClass = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 if (Test-Path $nicClass) {
@@ -295,6 +308,18 @@ if (Test-Path $sysInfo) {
     }
 }
 
+Write-Step "ACPI tables — checking for VMware OEM strings"
+foreach ($tbl in @("DSDT","FADT","RSDT","SSDT","APIC","BOOT")) {
+    $path = "HKLM:\HARDWARE\ACPI\$tbl"
+    if (-not (Test-Path $path)) { continue }
+    Get-ChildItem $path -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+        if ($_.PSChildName -imatch "VMWARE|VBOX|BOCHS|QEMU|APPLE") {
+            Write-Warn "ACPI $tbl\$($_.PSChildName) still has VM/Apple OEM string."
+            Write-Warn "  Fix: VMX acpi.passthru.bios=TRUE (applied by vmstealth_fusion_arm.py)"
+        }
+    }
+}
+
 Write-Step "Installed programs — cleaning Uninstall registry"
 $uninstallRoots = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
@@ -343,6 +368,17 @@ Write-Step "Firewall — removing VMware rules"
 Get-NetFirewallRule -ErrorAction SilentlyContinue |
     Where-Object { $_.DisplayName -imatch "VMware" } |
     ForEach-Object { Remove-NetFirewallRule -Name $_.Name -ErrorAction SilentlyContinue; Write-Ok "Removed: $($_.DisplayName)" }
+
+Write-Step "Environment variables — removing VM/sandbox vars"
+foreach ($var in @("VBOX_MSI_INSTALL_PATH","VBOX_INSTALL_PATH",
+                   "VMWARE_USE_SHIPPED_GTKMM","SANDBOX","SANDBOXIE")) {
+    foreach ($scope in @("Machine","User")) {
+        if ([Environment]::GetEnvironmentVariable($var, $scope)) {
+            [Environment]::SetEnvironmentVariable($var, $null, $scope)
+            Write-Ok "Removed [$scope] env var: $var"
+        }
+    }
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  WMI hardware verification — checks VMware AND Apple strings
@@ -408,11 +444,35 @@ if ($cs2) {
     if ($cpus  -lt 2) { Write-Warn "Only 1 vCPU — increase to 2+" }   else { Write-Ok "CPUs: $cpus" }
 }
 
+Write-Step "Screen resolution — checking for VM defaults"
+Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+try {
+    $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+    Write-Host "    Resolution: $($b.Width) x $($b.Height)"
+    if ($b.Width -le 1024) {
+        Write-Warn "Resolution $($b.Width)x$($b.Height) is a common VM default — set to 1920x1080"
+    } else {
+        Write-Ok "Resolution looks realistic: $($b.Width)x$($b.Height)"
+    }
+} catch { Write-Skip "Could not read resolution" }
+
 Write-Step "Disk size — checking for sandbox-small disks"
 Get-CimInstance Win32_DiskDrive -ErrorAction SilentlyContinue | ForEach-Object {
     $gb = if ($_.Size) { [math]::Round($_.Size / 1GB) } else { 0 }
     Write-Host "    $($_.Model): $gb GB"
     if ($gb -lt 60) { Write-Warn "Disk $gb GB — expand to 80+ GB" } else { Write-Ok "Disk size OK: $gb GB" }
+}
+
+Write-Step "Volume serial — checking against known sandbox fingerprints"
+$vol = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" -ErrorAction SilentlyContinue
+if ($vol -and $vol.VolumeSerialNumber) {
+    $serial = $vol.VolumeSerialNumber.ToUpper()
+    $knownBad = @("0CD1A40B","70144A7E","E8F6A80D","A8A0B820","E84BA848")
+    Write-Host "    C: serial: $serial"
+    if ($serial -iin $knownBad) {
+        Write-Fail "Volume serial $serial is a known sandbox fingerprint!"
+        Write-Warn "Reformat C: or use diskpart 'assign letter= id=<random>'"
+    } else { Write-Ok "Volume serial not in known-bad list" }
 }
 
 Write-Step "Uptime — checking for fresh-sandbox boot pattern"
@@ -429,6 +489,42 @@ Write-Step "Locale / timezone"
 $tz = (Get-TimeZone).Id
 Write-Host "    Timezone: $tz   Locale: $((Get-Culture).Name)"
 if ($tz -match "^UTC$") { Write-Warn "Plain UTC — set a realistic timezone" } else { Write-Ok "Timezone: $tz" }
+
+Write-Step "Named pipes — checking for VM/sandbox pipe names"
+try {
+    $pipes = Get-ChildItem -Path '\\.\pipe\' -ErrorAction Stop |
+             Select-Object -ExpandProperty Name
+    $badPipes = $pipes | Where-Object { $_ -imatch "vmware|cuckoo|sandbox|vbox|anubis|cape" }
+    if ($badPipes) {
+        $badPipes | ForEach-Object { Write-Warn "Suspicious pipe: $_" }
+    } else {
+        Write-Ok "No VM/sandbox pipes found ($(@($pipes).Count) total pipes enumerated)"
+    }
+} catch { Write-Skip "Could not enumerate pipes: $($_.Exception.Message)" }
+
+Write-Step "Analysis tools — check for running tools that malware detects"
+$tools = @{
+    "wireshark"="Wireshark";    "Procmon"="Process Monitor"
+    "Procmon64"="Procmon x64";  "procexp"="Process Explorer"
+    "procexp64"="ProcExp x64";  "tcpview"="TCPView"
+    "autoruns"="Autoruns";      "autorunsc"="Autoruns CLI"
+    "ollydbg"="OllyDbg";        "x32dbg"="x32dbg"
+    "x64dbg"="x64dbg";          "windbg"="WinDbg"
+    "idaq"="IDA Pro";           "idaq64"="IDA Pro x64"
+    "Fiddler"="Fiddler";        "pestudio"="PE Studio"
+    "die"="DIE";                "cuckoo"="Cuckoo agent"
+    "regshot"="Regshot";        "fakenet"="FakeNet-NG"
+}
+$found = @()
+foreach ($proc in $tools.Keys) {
+    if (Get-Process $proc -ErrorAction SilentlyContinue) { $found += $tools[$proc] }
+}
+if ($found) {
+    Write-Fail "$($found.Count) analysis tool(s) running: $($found -join ', ')"
+    Write-Warn "Close them BEFORE detonating the sample."
+} else {
+    Write-Ok "No known analysis tools detected"
+}
 
 Write-Step "User artifacts — generating realistic user activity"
 $docs = [Environment]::GetFolderPath("MyDocuments")
@@ -452,15 +548,65 @@ foreach ($f in $fakeFiles) {
     } else { Write-Skip "Exists: $($f.Path)" }
 }
 
+Write-Step "Browser profiles — creating minimal profile stubs"
+$chromeDir = "$env:LOCALAPPDATA\Google\Chrome\User Data\Default"
+if (-not (Test-Path $chromeDir)) {
+    New-Item $chromeDir -ItemType Directory -Force | Out-Null
+    $prefs = '{"browser":{"last_known_google_url":"https://www.google.com/","last_prompted_google_url":"https://www.google.com/"},"profile":{"name":"Default"},"session":{"restore_on_startup":1}}'
+    Set-Content "$chromeDir\Preferences" $prefs -Encoding UTF8
+    Write-Ok "Created Chrome profile stub"
+} else { Write-Skip "Chrome profile already exists" }
+
+$edgeDir = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default"
+if (-not (Test-Path $edgeDir)) {
+    New-Item $edgeDir -ItemType Directory -Force | Out-Null
+    Write-Ok "Created Edge profile stub"
+} else { Write-Skip "Edge profile already exists" }
+
 Write-Step "Startup items — adding realistic Run key entries"
 $runKey = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
-$existingRun = (Get-ItemProperty $runKey -ErrorAction SilentlyContinue).PSObject.Properties |
-               Where-Object { $_.Name -notin @("PSPath","PSParentPath","PSChildName","PSDrive","PSProvider") }
+$existingRun = @((Get-ItemProperty $runKey -ErrorAction SilentlyContinue).PSObject.Properties |
+                 Where-Object { $_.Name -notin @("PSPath","PSParentPath","PSChildName","PSDrive","PSProvider") })
 if ($existingRun.Count -lt 2) {
     Set-ItemProperty $runKey "OneDrive" "$env:LOCALAPPDATA\Microsoft\OneDrive\OneDrive.exe /background" -Force
     Set-ItemProperty $runKey "Discord"  "$env:LOCALAPPDATA\Discord\Update.exe --processStart Discord.exe" -Force
     Write-Ok "Added realistic startup entries"
 } else { Write-Ok "Run key already has $($existingRun.Count) entries" }
+
+Write-Step "Mouse activity — installing cursor-jitter scheduled task"
+
+$mouseMoverScript = @'
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class NativeMouse {
+    [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT lp);
+    [StructLayout(LayoutKind.Sequential)] public struct POINT { public int X; public int Y; }
+}
+"@
+$rng = New-Object System.Random
+while ($true) {
+    Start-Sleep -Seconds ($rng.Next(15, 45))
+    $pt = New-Object NativeMouse+POINT
+    [NativeMouse]::GetCursorPos([ref]$pt) | Out-Null
+    [NativeMouse]::SetCursorPos($pt.X + $rng.Next(-8, 8), $pt.Y + $rng.Next(-8, 8)) | Out-Null
+}
+'@
+
+$scriptPath = "$env:APPDATA\Microsoft\Windows\SystemEvents\ActivityHelper.ps1"
+New-Item (Split-Path $scriptPath) -ItemType Directory -Force | Out-Null
+Set-Content $scriptPath $mouseMoverScript -Encoding UTF8
+
+$action   = New-ScheduledTaskAction -Execute "powershell.exe" `
+            -Argument "-WindowStyle Hidden -NonInteractive -ExecutionPolicy Bypass -File `"$scriptPath`""
+$trigger  = New-ScheduledTaskTrigger -AtLogOn
+$settings = New-ScheduledTaskSettingsSet -Hidden -ExecutionTimeLimit ([TimeSpan]::Zero) `
+            -MultipleInstances IgnoreNew
+Register-ScheduledTask -TaskName "MicrosoftEdgeUpdateBroker" -Action $action `
+    -Trigger $trigger -Settings $settings -RunLevel Highest -Force -ErrorAction SilentlyContinue
+Write-Ok "Installed cursor-jitter task: MicrosoftEdgeUpdateBroker"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  38. ARM64 ARCHITECTURE — unavoidable fingerprint note  [ARM SPECIFIC]

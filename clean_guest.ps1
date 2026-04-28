@@ -1,4 +1,4 @@
-
+﻿
 # =============================================================================
 #  VMware Guest Artifact Cleaner — elite edition
 #  Run INSIDE Windows VM as Administrator.
@@ -68,9 +68,7 @@ $regKeys = @(
     "HKLM:\SYSTEM\ControlSet001\Services\pvscsi",
     # Uninstall entries
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VMware Tools",
-    "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\VMware Tools",
-    # MUI / event message files
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{VMWARE_TOOLS_GUID}"
+    "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\VMware Tools"
 )
 foreach ($key in $regKeys) {
     if (Test-Path $key) { Remove-Item $key -Recurse -Force; Write-Ok $key }
@@ -372,7 +370,7 @@ if (Test-Path $sysInfo) {
         $val = $p.$field
         if ($val -imatch "VMware|Virtual|BOCHS|QEMU|Hyper-V|innotek") {
             Set-ItemProperty $sysInfo $field $replacements[$field] -Force
-            Write-Ok "SystemInfo.$field: '$val'  →  '$($replacements[$field])'"
+            Write-Ok "SystemInfo.${field}: '$val'  →  '$($replacements[$field])'"
         }
     }
 }
@@ -391,9 +389,17 @@ if (Test-Path $hwDesc) {
         Set-ItemProperty $hwDesc "SystemBiosVersion" "LENOVO BIOS Version N2IET95W (1.60 )" -Force
         Write-Ok "Patched SystemBiosVersion"
     }
-    if ($p.SystemBiosDate -and ($p.SystemBiosDate -lt "01/01/2019")) {
-        Set-ItemProperty $hwDesc "SystemBiosDate"    "08/14/2022" -Force
-        Write-Ok "Patched SystemBiosDate"
+    # Parse SystemBiosDate as a real date (MM/dd/yyyy) — string compare on
+    # MM/dd/yyyy gives wrong order ("12/12/2018" -lt "01/01/2019" is false).
+    $biosDate = $null
+    if ($p.SystemBiosDate) {
+        [DateTime]::TryParseExact($p.SystemBiosDate, "MM/dd/yyyy",
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [System.Globalization.DateTimeStyles]::None, [ref]$biosDate) | Out-Null
+    }
+    if ($biosDate -and $biosDate -lt [DateTime]"2019-01-01") {
+        Set-ItemProperty $hwDesc "SystemBiosDate" "08/14/2022" -Force
+        Write-Ok "Patched SystemBiosDate (was: $($p.SystemBiosDate))"
     }
     if ($p.VideoBiosVersion -imatch $badPattern) {
         Set-ItemProperty $hwDesc "VideoBiosVersion"  "Version 3.0 Rev. A" -Force
@@ -724,14 +730,18 @@ if ($tz -eq "UTC" -or $tz -match "^UTC$") {
 Write-Step "Named pipes — checking for VM/sandbox pipe names"
 
 try {
-    $pipes = [System.IO.Directory]::GetFiles("\\.\\pipe\\")
+    # The named-pipe filesystem is exposed via the \\.\pipe\ namespace.
+    # System.IO.Directory.GetFiles cannot enumerate it; PowerShell's
+    # filesystem provider can via Get-ChildItem.
+    $pipes = Get-ChildItem -Path '\\.\pipe\' -ErrorAction Stop |
+             Select-Object -ExpandProperty Name
     $badPipes = $pipes | Where-Object { $_ -imatch "vmware|cuckoo|sandbox|vbox|anubis|cape" }
     if ($badPipes) {
         $badPipes | ForEach-Object { Write-Warn "Suspicious pipe: $_" }
     } else {
-        Write-Ok "No VM/sandbox pipes found ($($pipes.Count) total pipes enumerated)"
+        Write-Ok "No VM/sandbox pipes found ($(@($pipes).Count) total pipes enumerated)"
     }
-} catch { Write-Skip "Could not enumerate pipes (normal on some Windows builds)" }
+} catch { Write-Skip "Could not enumerate pipes: $($_.Exception.Message)" }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -801,18 +811,21 @@ foreach ($f in $fakeFiles) {
     } else { Write-Skip "Exists: $($f.Path)" }
 }
 
-# Recent files MRU (shell:recent)
+# Recent files MRU (shell:recent) — Recent is for documents, not shortcuts,
+# so skip source files that are already .lnk and avoid the .lnk.lnk artefact.
 $recentDir = "$env:APPDATA\Microsoft\Windows\Recent"
 $wsh = New-Object -ComObject WScript.Shell -ErrorAction SilentlyContinue
 if ($wsh) {
     foreach ($f in $fakeFiles) {
-        $lnkPath = Join-Path $recentDir ([System.IO.Path]::GetFileName($f.Path) + ".lnk")
+        $leaf = [System.IO.Path]::GetFileName($f.Path)
+        if ($leaf -like "*.lnk") { continue }
+        $lnkPath = Join-Path $recentDir ($leaf + ".lnk")
         if (-not (Test-Path $lnkPath)) {
             try {
                 $lnk = $wsh.CreateShortcut($lnkPath)
                 $lnk.TargetPath = $f.Path
                 $lnk.Save()
-                Write-Ok "Recent MRU: $([System.IO.Path]::GetFileName($f.Path))"
+                Write-Ok "Recent MRU: $leaf"
             } catch { }
         }
     }
@@ -849,8 +862,8 @@ if (-not (Test-Path $edgeDir)) {
 Write-Step "Startup items — adding realistic Run key entries"
 
 $runKey = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
-$existingRun = (Get-ItemProperty $runKey -ErrorAction SilentlyContinue).PSObject.Properties |
-               Where-Object { $_.Name -notin @("PSPath","PSParentPath","PSChildName","PSDrive","PSProvider") }
+$existingRun = @((Get-ItemProperty $runKey -ErrorAction SilentlyContinue).PSObject.Properties |
+                 Where-Object { $_.Name -notin @("PSPath","PSParentPath","PSChildName","PSDrive","PSProvider") })
 if ($existingRun.Count -lt 2) {
     Set-ItemProperty $runKey "OneDrive"  "$env:LOCALAPPDATA\Microsoft\OneDrive\OneDrive.exe /background" -Force
     Set-ItemProperty $runKey "Discord"   "$env:LOCALAPPDATA\Discord\Update.exe --processStart Discord.exe" -Force
