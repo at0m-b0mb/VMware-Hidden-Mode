@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0 L0 0 0 34" fill="none" stroke="#182338" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111c30"/>
+      <stop offset="1" stop-color="#0c1526"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="440" fill="url(#bg)"/>
+  <rect width="1280" height="440" fill="url(#grid)" opacity="0.45"/>
+
+  <!-- header -->
+  <text x="40" y="56" font-family="Menlo, monospace" font-size="16" letter-spacing="4" fill="#22d3ee" font-weight="700">WORKFLOW</text>
+  <text x="40" y="92" font-family="Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="800" fill="#e6edf3">Four steps from default VM to invisible lab</text>
+
+  <!-- arrows between cards -->
+  <g fill="#22d3ee" opacity="0.85">
+    <path d="M330 250 l22 0 l0 -9 l20 15 l-20 15 l0 -9 l-22 0 z"/>
+    <path d="M650 250 l22 0 l0 -9 l20 15 l-20 15 l0 -9 l-22 0 z"/>
+    <path d="M970 250 l22 0 l0 -9 l20 15 l-20 15 l0 -9 l-22 0 z"/>
+  </g>
+
+  <!-- ===== card 1 : HOST ===== -->
+  <g>
+    <rect x="40" y="140" width="270" height="230" rx="16" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.35"/>
+    <rect x="40" y="140" width="5" height="230" rx="2.5" fill="#22d3ee"/>
+    <circle cx="78" cy="182" r="18" fill="#0a1a28" stroke="#22d3ee" stroke-width="2"/>
+    <text x="78" y="189" font-family="Menlo, monospace" font-size="18" font-weight="700" fill="#7ef6ff" text-anchor="middle">1</text>
+    <text x="108" y="178" font-family="Menlo, monospace" font-size="13" letter-spacing="2" fill="#22d3ee" font-weight="700">HOST</text>
+    <text x="108" y="196" font-family="Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="800" fill="#e6edf3">Patch the VMX</text>
+    <g font-family="Menlo, monospace" font-size="13.5" fill="#9db1cc">
+      <text x="66" y="238">vmstealth.py "VM.vmx"</text>
+      <text x="66" y="264" fill="#6b7d96">• 13 detection tiers</text>
+      <text x="66" y="288" fill="#6b7d96">• CPUID · SMBIOS · RDTSC</text>
+      <text x="66" y="312" fill="#6b7d96">• MAC randomised</text>
+      <text x="66" y="340" fill="#34d399">→ auto .vmx.bak backup</text>
+    </g>
+  </g>
+
+  <!-- ===== card 2 : BOOT ===== -->
+  <g>
+    <rect x="360" y="140" width="270" height="230" rx="16" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.35"/>
+    <rect x="360" y="140" width="5" height="230" rx="2.5" fill="#22d3ee"/>
+    <circle cx="398" cy="182" r="18" fill="#0a1a28" stroke="#22d3ee" stroke-width="2"/>
+    <text x="398" y="189" font-family="Menlo, monospace" font-size="18" font-weight="700" fill="#7ef6ff" text-anchor="middle">2</text>
+    <text x="428" y="178" font-family="Menlo, monospace" font-size="13" letter-spacing="2" fill="#22d3ee" font-weight="700">BOOT</text>
+    <text x="428" y="196" font-family="Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="800" fill="#e6edf3">Snapshot &amp; start</text>
+    <g font-family="Menlo, monospace" font-size="13.5" fill="#9db1cc">
+      <text x="386" y="238">Take a snapshot first</text>
+      <text x="386" y="264" fill="#6b7d96">• power on hardened VM</text>
+      <text x="386" y="288" fill="#6b7d96">• new NIC detected</text>
+      <text x="386" y="312" fill="#6b7d96">• host SMBIOS reflected</text>
+      <text x="386" y="340" fill="#fbbf24">! reboot applies DMI</text>
+    </g>
+  </g>
+
+  <!-- ===== card 3 : GUEST ===== -->
+  <g>
+    <rect x="680" y="140" width="270" height="230" rx="16" fill="url(#card)" stroke="#a78bfa" stroke-opacity="0.40"/>
+    <rect x="680" y="140" width="5" height="230" rx="2.5" fill="#a78bfa"/>
+    <circle cx="718" cy="182" r="18" fill="#161029" stroke="#a78bfa" stroke-width="2"/>
+    <text x="718" y="189" font-family="Menlo, monospace" font-size="18" font-weight="700" fill="#c4b5fd" text-anchor="middle">3</text>
+    <text x="748" y="178" font-family="Menlo, monospace" font-size="13" letter-spacing="2" fill="#a78bfa" font-weight="700">GUEST</text>
+    <text x="748" y="196" font-family="Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="800" fill="#e6edf3">Clean artifacts</text>
+    <g font-family="Menlo, monospace" font-size="13.5" fill="#9db1cc">
+      <text x="706" y="238">clean_guest.ps1 (Admin)</text>
+      <text x="706" y="264" fill="#6b7d96">• registry · services</text>
+      <text x="706" y="288" fill="#6b7d96">• drivers · DLLs · PCI</text>
+      <text x="706" y="312" fill="#6b7d96">• decoy user artifacts</text>
+      <text x="706" y="340" fill="#c4b5fd">→ 37 cleanup sections</text>
+    </g>
+  </g>
+
+  <!-- ===== card 4 : VERIFY ===== -->
+  <g>
+    <rect x="1000" y="140" width="240" height="230" rx="16" fill="url(#card)" stroke="#34d399" stroke-opacity="0.40"/>
+    <rect x="1000" y="140" width="5" height="230" rx="2.5" fill="#34d399"/>
+    <circle cx="1038" cy="182" r="18" fill="#08211a" stroke="#34d399" stroke-width="2"/>
+    <text x="1038" y="189" font-family="Menlo, monospace" font-size="18" font-weight="700" fill="#6ee7b7" text-anchor="middle">4</text>
+    <text x="1068" y="178" font-family="Menlo, monospace" font-size="13" letter-spacing="2" fill="#34d399" font-weight="700">VERIFY</text>
+    <text x="1068" y="196" font-family="Helvetica Neue, Arial, sans-serif" font-size="20" font-weight="800" fill="#e6edf3">Confirm</text>
+    <g font-family="Menlo, monospace" font-size="13.5" fill="#9db1cc">
+      <text x="1026" y="238">--scan re-audit</text>
+      <text x="1026" y="264" fill="#6b7d96">• pafish</text>
+      <text x="1026" y="288" fill="#6b7d96">• al-khaser</text>
+      <text x="1026" y="312" fill="#6b7d96">• WMI checks</text>
+      <text x="1026" y="340" fill="#34d399">✔ VM undetected</text>
+    </g>
+  </g>
+</svg>

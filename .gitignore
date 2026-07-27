@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# VMware artifacts (never commit real VM data)
+*.vmx
+*.vmx.bak
+*.vmwarevm/
+*.vmdk
+*.nvram
+*.vmsd
+*.vmss
+vmware*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp

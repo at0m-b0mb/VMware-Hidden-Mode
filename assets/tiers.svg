@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0 L0 0 0 34" fill="none" stroke="#182338" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111c30"/>
+      <stop offset="1" stop-color="#0c1526"/>
+    </linearGradient>
+    <linearGradient id="guest" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1a1330"/>
+      <stop offset="1" stop-color="#120e24"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="620" fill="url(#bg)"/>
+  <rect width="1280" height="620" fill="url(#grid)" opacity="0.4"/>
+
+  <text x="40" y="52" font-family="Menlo, monospace" font-size="16" letter-spacing="4" fill="#22d3ee" font-weight="700">DETECTION SURFACE COVERED</text>
+  <text x="40" y="88" font-family="Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="800" fill="#e6edf3">13 host-side tiers <tspan fill="#5c6f8a">+</tspan> 37 in-guest cleanup sections</text>
+
+  <text x="40" y="128" font-family="Menlo, monospace" font-size="14" letter-spacing="2" fill="#22d3ee" font-weight="700">HOST&#160;·&#160;VMX PATCH</text>
+
+  <!-- 13 tier cards, 4-col grid -->
+  <g font-family="Helvetica Neue, Arial, sans-serif">
+    <!-- row builder: each card 283x70, gap 19 ; cols x=40,342,644,946 ; rows y=142,224,306 -->
+    <!-- ROW 1 -->
+    <g><rect x="40"  y="142" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="40" y="142" width="4" height="70" rx="2" fill="#22d3ee"/><text x="64" y="176" font-size="17" font-weight="800" fill="#e6edf3">1 · CPUID hypervisor bit</text><text x="64" y="198" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">ECX leaf 1, bit 31 cleared</text></g>
+    <g><rect x="342" y="142" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="342" y="142" width="4" height="70" rx="2" fill="#22d3ee"/><text x="366" y="176" font-size="17" font-weight="800" fill="#e6edf3">2 · Backdoor I/O port</text><text x="366" y="198" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">0x5658 'VMXh' restricted</text></g>
+    <g><rect x="644" y="142" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="644" y="142" width="4" height="70" rx="2" fill="#22d3ee"/><text x="668" y="176" font-size="17" font-weight="800" fill="#e6edf3">3 · RDTSC timing</text><text x="668" y="198" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">virtual_rdtsc passthrough</text></g>
+    <g><rect x="946" y="142" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="946" y="142" width="4" height="70" rx="2" fill="#22d3ee"/><text x="970" y="176" font-size="17" font-weight="800" fill="#e6edf3">4 · SMBIOS / DMI</text><text x="970" y="198" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">reflect real host tables</text></g>
+    <!-- ROW 2 -->
+    <g><rect x="40"  y="224" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="40" y="224" width="4" height="70" rx="2" fill="#22d3ee"/><text x="64" y="258" font-size="17" font-weight="800" fill="#e6edf3">5 · ACPI tables</text><text x="64" y="280" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">passthru, no VMWARE OEM</text></g>
+    <g><rect x="342" y="224" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="342" y="224" width="4" height="70" rx="2" fill="#22d3ee"/><text x="366" y="258" font-size="17" font-weight="800" fill="#e6edf3">6 · VMCI PCI device</text><text x="366" y="280" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">VID 0x15AD removed</text></g>
+    <g><rect x="644" y="224" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="644" y="224" width="4" height="70" rx="2" fill="#22d3ee"/><text x="668" y="258" font-size="17" font-weight="800" fill="#e6edf3">7 · Legacy ports</text><text x="668" y="280" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">floppy · serial · parallel</text></g>
+    <g><rect x="946" y="224" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="946" y="224" width="4" height="70" rx="2" fill="#22d3ee"/><text x="970" y="258" font-size="17" font-weight="800" fill="#e6edf3">8 · SVGA VRAM</text><text x="970" y="280" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">16 MB → 256 MB</text></g>
+    <!-- ROW 3 -->
+    <g><rect x="40"  y="306" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="40" y="306" width="4" height="70" rx="2" fill="#22d3ee"/><text x="64" y="340" font-size="17" font-weight="800" fill="#e6edf3">9 · Memory timing</text><text x="64" y="362" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">page-share dedup oracle</text></g>
+    <g><rect x="342" y="306" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="342" y="306" width="4" height="70" rx="2" fill="#22d3ee"/><text x="366" y="340" font-size="17" font-weight="800" fill="#e6edf3">10 · Hyper-V leaves</text><text x="366" y="362" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">vhv enlightenments off</text></g>
+    <g><rect x="644" y="306" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="644" y="306" width="4" height="70" rx="2" fill="#22d3ee"/><text x="668" y="340" font-size="17" font-weight="800" fill="#e6edf3">11 · Time sync</text><text x="668" y="362" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">7 sync channels disabled</text></g>
+    <g><rect x="946" y="306" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="946" y="306" width="4" height="70" rx="2" fill="#22d3ee"/><text x="970" y="340" font-size="17" font-weight="800" fill="#e6edf3">12 · Named pipes</text><text x="970" y="362" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">clipboard · DnD · HGFS</text></g>
+    <!-- ROW 4 : tier 13 + MAC -->
+    <g><rect x="40"  y="388" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="40" y="388" width="4" height="70" rx="2" fill="#22d3ee"/><text x="64" y="422" font-size="17" font-weight="800" fill="#e6edf3">13 · VMware logs</text><text x="64" y="444" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">logging disabled</text></g>
+    <g><rect x="342" y="388" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="342" y="388" width="4" height="70" rx="2" fill="#22d3ee"/><text x="366" y="422" font-size="17" font-weight="800" fill="#e6edf3">+ · MAC address</text><text x="366" y="444" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">OUI randomised → real</text></g>
+    <g><rect x="644" y="388" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="644" y="388" width="4" height="70" rx="2" fill="#22d3ee"/><text x="668" y="422" font-size="17" font-weight="800" fill="#e6edf3">+ · NIC / SCSI / 3D</text><text x="668" y="444" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">e1000e, --aggressive</text></g>
+    <g><rect x="946" y="388" width="283" height="70" rx="11" fill="url(#card)" stroke="#22d3ee" stroke-opacity="0.30"/><rect x="946" y="388" width="4" height="70" rx="2" fill="#22d3ee"/><text x="970" y="422" font-size="17" font-weight="800" fill="#e6edf3">+ · RAM / vCPU</text><text x="970" y="444" font-family="Menlo, monospace" font-size="12.5" fill="#7f90a8">low-spec sandbox flags</text></g>
+  </g>
+
+  <!-- GUEST band -->
+  <text x="40" y="502" font-family="Menlo, monospace" font-size="14" letter-spacing="2" fill="#a78bfa" font-weight="700">GUEST&#160;·&#160;POWERSHELL CLEANER</text>
+  <rect x="40" y="516" width="1189" height="76" rx="12" fill="url(#guest)" stroke="#a78bfa" stroke-opacity="0.35"/>
+  <rect x="40" y="516" width="4" height="76" rx="2" fill="#a78bfa"/>
+  <g font-family="Menlo, monospace" font-size="13.5" fill="#c4b5fd">
+    <text x="66" y="546">registry · services · processes · binaries · kernel drivers (.sys) · guest DLLs · PCI VEN_15AD · disk strings</text>
+    <text x="66" y="572">NIC / GPU / audio class · SMBIOS &amp; BIOS hive · event logs · firewall · prefetch · tasks · decoy user artifacts · final report</text>
+  </g>
+</svg>

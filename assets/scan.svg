@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <linearGradient id="term" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1526"/>
+      <stop offset="1" stop-color="#0a1120"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .mono { font-family: Menlo, monospace; }
+    .lbl  { fill: #cdd9ea; font-size: 16px; }
+    .val  { fill: #7f90a8; font-size: 15px; }
+    .pass { fill: #34d399; }
+    .fail { fill: #f87171; }
+    .warn { fill: #fbbf24; }
+  </style>
+
+  <rect width="1280" height="560" fill="url(#bg)"/>
+
+  <text x="40" y="46" class="mono" font-size="16" letter-spacing="4" fill="#22d3ee" font-weight="700">PROOF OF FUNCTION</text>
+  <text x="40" y="80" font-family="Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="800" fill="#e6edf3">Real <tspan class="mono" fill="#7ef6ff">--scan</tspan> output, before and after the patch</text>
+
+  <!-- ================= BEFORE ================= -->
+  <g>
+    <rect x="40" y="112" width="580" height="410" rx="12" fill="url(#term)" stroke="#3a2530" stroke-width="1.5"/>
+    <rect x="40" y="112" width="580" height="38" rx="12" fill="#12192b"/>
+    <rect x="40" y="138" width="580" height="12" fill="#12192b"/>
+    <circle cx="64" cy="131" r="6" fill="#ff5f57"/>
+    <circle cx="84" cy="131" r="6" fill="#febc2e"/>
+    <circle cx="104" cy="131" r="6" fill="#28c840"/>
+    <text x="330" y="136" class="mono" font-size="13" fill="#6b7d96" text-anchor="middle">vmstealth.py "Windows 10.vmx" --scan</text>
+
+    <text x="62" y="182" class="mono" font-size="15" fill="#f87171" font-weight="700">BEFORE&#160;&#160;·&#160;&#160;default VMware VM</text>
+
+    <g class="mono">
+      <!-- rows: icon x=62, label x=88, value x=300 -->
+      <text x="62" y="218" class="fail" font-size="16">✘</text><text x="88" y="218" class="lbl">CPUID hypervisor bit</text><text x="330" y="218" class="val">missing</text>
+      <text x="62" y="248" class="fail" font-size="16">✘</text><text x="88" y="248" class="lbl">Backdoor I/O port</text><text x="330" y="248" class="val">missing</text>
+      <text x="62" y="278" class="fail" font-size="16">✘</text><text x="88" y="278" class="lbl">SMBIOS reflect host</text><text x="330" y="278" class="val">missing</text>
+      <text x="62" y="308" class="fail" font-size="16">✘</text><text x="88" y="308" class="lbl">VMCI device removed</text><text x="330" y="308" class="val">"TRUE" → FALSE</text>
+      <text x="62" y="338" class="fail" font-size="16">✘</text><text x="88" y="338" class="lbl">SVGA VRAM 256 MB</text><text x="330" y="338" class="val">"16777216"</text>
+      <text x="62" y="368" class="fail" font-size="16">✘</text><text x="88" y="368" class="lbl">Logging disabled</text><text x="330" y="368" class="val">"TRUE" → FALSE</text>
+      <text x="62" y="398" class="fail" font-size="16">✘</text><text x="88" y="398" class="lbl">MAC address</text><text x="330" y="398" class="val">VMware OUI 00:0C:29…</text>
+      <text x="62" y="428" class="warn" font-size="16">⚠</text><text x="88" y="428" class="lbl">NIC virtual device</text><text x="330" y="428" class="val">"vmxnet3"</text>
+      <text x="62" y="458" class="warn" font-size="16">⚠</text><text x="88" y="458" class="lbl">vCPU count</text><text x="330" y="458" class="val">1</text>
+    </g>
+    <line x1="62" y1="478" x2="598" y2="478" stroke="#243149" stroke-width="1"/>
+    <text x="62" y="504" class="mono" font-size="17" font-weight="700"><tspan fill="#f87171">0/36 pass</tspan><tspan fill="#6b7d96">  ·  </tspan><tspan fill="#fbbf24">5 warn</tspan><tspan fill="#6b7d96">  ·  </tspan><tspan fill="#f87171">31 fail</tspan></text>
+  </g>
+
+  <!-- arrow -->
+  <path d="M628 300 l14 0 l0 -11 l22 17 l-22 17 l0 -11 l-14 0 z" fill="#22d3ee"/>
+
+  <!-- ================= AFTER ================= -->
+  <g>
+    <rect x="672" y="112" width="580" height="410" rx="12" fill="url(#term)" stroke="#1d3a37" stroke-width="1.5"/>
+    <rect x="672" y="112" width="580" height="38" rx="12" fill="#12192b"/>
+    <rect x="672" y="138" width="580" height="12" fill="#12192b"/>
+    <circle cx="696" cy="131" r="6" fill="#ff5f57"/>
+    <circle cx="716" cy="131" r="6" fill="#febc2e"/>
+    <circle cx="736" cy="131" r="6" fill="#28c840"/>
+    <text x="962" y="136" class="mono" font-size="13" fill="#6b7d96" text-anchor="middle">vmstealth.py "Windows 10.vmx" --scan</text>
+
+    <text x="694" y="182" class="mono" font-size="15" fill="#34d399" font-weight="700">AFTER&#160;&#160;·&#160;&#160;vmstealth --aggressive</text>
+
+    <g class="mono">
+      <text x="694" y="218" class="pass" font-size="16">✔</text><text x="720" y="218" class="lbl">CPUID hypervisor bit</text><text x="962" y="218" class="val">cleared</text>
+      <text x="694" y="248" class="pass" font-size="16">✔</text><text x="720" y="248" class="lbl">Backdoor I/O port</text><text x="962" y="248" class="val">"TRUE"</text>
+      <text x="694" y="278" class="pass" font-size="16">✔</text><text x="720" y="278" class="lbl">SMBIOS reflect host</text><text x="962" y="278" class="val">"TRUE"</text>
+      <text x="694" y="308" class="pass" font-size="16">✔</text><text x="720" y="308" class="lbl">VMCI device removed</text><text x="962" y="308" class="val">"FALSE"</text>
+      <text x="694" y="338" class="pass" font-size="16">✔</text><text x="720" y="338" class="lbl">SVGA VRAM 256 MB</text><text x="962" y="338" class="val">"268435456"</text>
+      <text x="694" y="368" class="pass" font-size="16">✔</text><text x="720" y="368" class="lbl">Logging disabled</text><text x="962" y="368" class="val">"FALSE"</text>
+      <text x="694" y="398" class="pass" font-size="16">✔</text><text x="720" y="398" class="lbl">MAC address</text><text x="962" y="398" class="val">no VMware OUI</text>
+      <text x="694" y="428" class="pass" font-size="16">✔</text><text x="720" y="428" class="lbl">NIC virtual device</text><text x="962" y="428" class="val">"e1000e"</text>
+      <text x="694" y="458" class="pass" font-size="16">✔</text><text x="720" y="458" class="lbl">3D SVGA</text><text x="962" y="458" class="val">disabled</text>
+    </g>
+    <line x1="694" y1="478" x2="1230" y2="478" stroke="#243149" stroke-width="1"/>
+    <text x="694" y="504" class="mono" font-size="17" font-weight="700"><tspan fill="#34d399">33/36 pass</tspan><tspan fill="#6b7d96">  ·  </tspan><tspan fill="#fbbf24">3 warn</tspan><tspan fill="#6b7d96">  ·  </tspan><tspan fill="#34d399">0 fail</tspan></text>
+  </g>
+</svg>

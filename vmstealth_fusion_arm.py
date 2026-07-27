@@ -48,6 +48,8 @@ import random
 import argparse
 from pathlib import Path
 
+__version__ = "1.0.0"
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  VMX STEALTH SETTINGS — Fusion / Apple Silicon edition
@@ -503,6 +505,9 @@ Examples:
     p.add_argument("--aggressive",
                    action="store_true",
                    help="Also swap NIC to e1000e, disable 3D SVGA, remove xHCI USB controller")
+    p.add_argument("--version",
+                   action="version",
+                   version=f"vmstealth-fusion-arm {__version__}")
     args = p.parse_args()
 
     if not args.vmx and not args.guest_script:

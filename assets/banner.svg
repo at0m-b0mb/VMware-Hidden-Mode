@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="0.55" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5ef2ff"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#0f9d94"/>
+    </linearGradient>
+    <linearGradient id="topface" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7ef6ff"/>
+      <stop offset="1" stop-color="#2dd4bf"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0"   stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#a7f8ff" stop-opacity="0.95"/>
+      <stop offset="1"   stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c7d6ea"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0 L0 0 0 34" fill="none" stroke="#1b2740" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <rect width="1280" height="400" fill="url(#grid)" opacity="0.5"/>
+  <ellipse cx="285" cy="200" rx="290" ry="240" fill="url(#glow)"/>
+  <rect y="398" width="1280" height="2" fill="#22d3ee" opacity="0.5"/>
+
+  <!-- ===== logomark: isometric VM cube dissolving ===== -->
+  <g transform="translate(66,52) scale(0.62)">
+    <polygon points="256,110 376,170 256,230 136,170" fill="url(#topface)" fill-opacity="0.92" stroke="#c9fbff" stroke-width="2" stroke-opacity="0.5"/>
+    <polygon points="136,170 256,230 256,360 136,300" fill="url(#teal)" fill-opacity="0.85" stroke="#0b7d76" stroke-width="1.5"/>
+    <polygon points="152,196 236,238 236,268 152,226" fill="#0a2e33" fill-opacity="0.55"/>
+    <polygon points="152,240 236,282 236,338 152,296" fill="#0a2e33" fill-opacity="0.4"/>
+    <polygon points="376,170 256,230 256,360 376,300" fill="url(#cyan)" fill-opacity="0.10"
+             stroke="url(#cyan)" stroke-width="2.5" stroke-opacity="0.75" stroke-dasharray="10 11" stroke-linejoin="round"/>
+    <g fill="#22d3ee">
+      <rect x="384" y="196" width="15" height="15" opacity="0.7"/>
+      <rect x="410" y="182" width="13" height="13" opacity="0.5"/>
+      <rect x="404" y="228" width="14" height="14" opacity="0.55"/>
+      <rect x="432" y="210" width="11" height="11" opacity="0.35"/>
+      <rect x="428" y="256" width="12" height="12" opacity="0.4"/>
+      <rect x="456" y="238" width="9"  height="9"  opacity="0.25"/>
+      <rect x="396" y="284" width="13" height="13" opacity="0.45"/>
+      <rect x="424" y="300" width="10" height="10" opacity="0.3"/>
+    </g>
+    <g fill="#a78bfa">
+      <rect x="418" y="200" width="10" height="10" opacity="0.5"/>
+      <rect x="444" y="268" width="9"  height="9"  opacity="0.35"/>
+      <rect x="410" y="262" width="8"  height="8"  opacity="0.4"/>
+    </g>
+    <rect x="96" y="248" width="360" height="6" rx="3" fill="url(#scan)"/>
+  </g>
+
+  <!-- ===== wordmark ===== -->
+  <text x="470" y="120" font-family="Menlo, monospace" font-size="19" letter-spacing="5" fill="#22d3ee" font-weight="700">MALWARE-ANALYSIS&#160;&#160;LAB&#160;&#160;TOOLING</text>
+
+  <text x="466" y="205" font-family="Helvetica Neue, Arial, sans-serif" font-size="74" font-weight="800" fill="url(#title)" letter-spacing="-1">VMware Hidden Mode</text>
+
+  <text x="470" y="252" font-family="Helvetica Neue, Arial, sans-serif" font-size="25" fill="#93a4bd" font-weight="500">Make your analysis VM invisible to sandbox-aware malware.</text>
+
+  <!-- chips -->
+  <g font-family="Menlo, monospace" font-size="17" font-weight="700">
+    <g>
+      <rect x="470" y="292" width="176" height="42" rx="10" fill="#0e1b2b" stroke="#22d3ee" stroke-opacity="0.55"/>
+      <text x="558" y="319" fill="#7ef6ff" text-anchor="middle">Host VMX patch</text>
+    </g>
+    <g>
+      <rect x="658" y="292" width="168" height="42" rx="10" fill="#0e1b2b" stroke="#22d3ee" stroke-opacity="0.55"/>
+      <text x="742" y="319" fill="#7ef6ff" text-anchor="middle">Guest cleaner</text>
+    </g>
+    <g>
+      <rect x="838" y="292" width="176" height="42" rx="10" fill="#0e1b2b" stroke="#a78bfa" stroke-opacity="0.55"/>
+      <text x="926" y="319" fill="#c4b5fd" text-anchor="middle">x86-64 + ARM64</text>
+    </g>
+    <g>
+      <rect x="1026" y="292" width="188" height="42" rx="10" fill="#0e1b2b" stroke="#a78bfa" stroke-opacity="0.55"/>
+      <text x="1120" y="319" fill="#c4b5fd" text-anchor="middle">13 detection tiers</text>
+    </g>
+  </g>
+</svg>
